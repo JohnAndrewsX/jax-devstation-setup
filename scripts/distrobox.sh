@@ -43,9 +43,22 @@ install_distrobox() {
 }
 
 create_container() {
-  if distrobox list 2>/dev/null | grep -q "$CONTAINER_NAME"; then
-    echo "Container '$CONTAINER_NAME' already exists."
-    return
+  if distrobox list 2>/dev/null | grep -qw "$CONTAINER_NAME"; then
+    # Verify the underlying container actually exists in podman/docker
+    local engine=""
+    if command -v podman &>/dev/null; then
+      engine="podman"
+    elif command -v docker &>/dev/null; then
+      engine="docker"
+    fi
+
+    if [[ -n "$engine" ]] && "$engine" container exists "$CONTAINER_NAME" 2>/dev/null; then
+      echo "Container '$CONTAINER_NAME' already exists."
+      return
+    fi
+
+    echo "Container '$CONTAINER_NAME' is stale, removing..."
+    distrobox rm --force "$CONTAINER_NAME" 2>/dev/null || true
   fi
 
   echo "Creating container '$CONTAINER_NAME' (image: $CONTAINER_IMAGE)..."

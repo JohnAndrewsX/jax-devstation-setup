@@ -46,7 +46,7 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-VERSION="0.0.6"
+VERSION="0.0.7"
 
 cat << EOF
 

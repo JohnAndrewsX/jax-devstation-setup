@@ -5,6 +5,19 @@ All notable changes to JAX DevStation Setup will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.7] - 2026-03-24
+
+### Fixed
+
+- Stale container bug: `create_container()` now verifies the underlying podman/docker container exists before skipping creation
+- Substring matching bug: container name check uses word-boundary match (`grep -qw`) to prevent false positives
+
+## [0.0.6] - 2026-03-24
+
+### Added
+
+- Interactive container image selection for Distrobox (`pick_image()`)
+
 ## [0.0.5] - 2026-03-24
 
 ### Added
