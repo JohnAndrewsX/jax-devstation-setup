@@ -16,20 +16,26 @@ SCRIPT_DIR="$(cd "$(dirname "$0")/scripts" && pwd)"
 DRY_RUN=false
 SKIP_VSCODE=false
 TERMINAL_EXTRAS=false
+CONTAINER_NAME=""
+CONTAINER_IMAGE=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run)          DRY_RUN=true ;;
     --skip-vscode)      SKIP_VSCODE=true ;;
     --terminal-extras)  TERMINAL_EXTRAS=true ;;
+    --container-name)   CONTAINER_NAME="$2"; shift ;;
+    --container-image)  CONTAINER_IMAGE="$2"; shift ;;
     -h|--help)
       echo "Usage: bash setup.sh [OPTIONS]"
       echo ""
       echo "Options:"
-      echo "  --dry-run           OS detection only, no changes"
-      echo "  --skip-vscode       Skip VSCode installation"
-      echo "  --terminal-extras   Also install Ghostty + Zellij"
-      echo "  -h, --help          Show this help"
+      echo "  --dry-run                  OS detection only, no changes"
+      echo "  --skip-vscode              Skip VSCode installation"
+      echo "  --terminal-extras          Also install Ghostty + Zellij"
+      echo "  --container-name <name>    Distrobox container name (default: dev)"
+      echo "  --container-image <image>  Container image (skips interactive selection)"
+      echo "  -h, --help                 Show this help"
       exit 0
       ;;
     *)
@@ -40,7 +46,7 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-VERSION="0.0.5"
+VERSION="0.0.6"
 
 cat << EOF
 
@@ -75,7 +81,10 @@ fi
 
 # Step 2: VSCode (via Distrobox on Atomic, native otherwise)
 if [ "$SKIP_VSCODE" = false ]; then
-  bash "$SCRIPT_DIR/distrobox.sh"
+  distrobox_args=()
+  [[ -n "$CONTAINER_NAME" ]] && distrobox_args+=(--container-name "$CONTAINER_NAME")
+  [[ -n "$CONTAINER_IMAGE" ]] && distrobox_args+=(--container-image "$CONTAINER_IMAGE")
+  bash "$SCRIPT_DIR/distrobox.sh" "${distrobox_args[@]}"
 else
   echo "=== VSCode installation skipped (--skip-vscode) ==="
   echo ""

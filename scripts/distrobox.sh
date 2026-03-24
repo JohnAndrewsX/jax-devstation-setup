@@ -9,8 +9,27 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/detect-os.sh"
 
 CONTAINER_NAME="dev"
-# Update version as needed
-CONTAINER_IMAGE="registry.fedoraproject.org/fedora:43"
+CONTAINER_IMAGE="registry.fedoraproject.org/fedora-toolbox:latest"
+IMAGE_PRESET=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --container-name)
+      CONTAINER_NAME="$2"
+      shift
+      ;;
+    --container-image)
+      CONTAINER_IMAGE="$2"
+      IMAGE_PRESET=true
+      shift
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      exit 1
+      ;;
+  esac
+  shift
+done
 
 install_distrobox() {
   if command -v distrobox &>/dev/null; then
@@ -90,12 +109,85 @@ install_vscode_native_dnf() {
   sudo dnf install -y code
 }
 
+pick_image() {
+  local default_image="$CONTAINER_IMAGE"
+  local -a images=(
+    "registry.fedoraproject.org/fedora-toolbox:latest"
+    "registry.fedoraproject.org/fedora:latest"
+    "docker.io/library/ubuntu:24.04"
+    "docker.io/library/alpine:latest"
+  )
+
+  # Add local images from podman/docker, deduplicating
+  local engine=""
+  if command -v podman &>/dev/null; then
+    engine="podman"
+  elif command -v docker &>/dev/null; then
+    engine="docker"
+  fi
+
+  if [[ -n "$engine" ]]; then
+    while IFS= read -r img; do
+      [[ -z "$img" ]] && continue
+      local dup=false
+      for existing in "${images[@]}"; do
+        if [[ "$existing" == "$img" ]]; then
+          dup=true
+          break
+        fi
+      done
+      if [[ "$dup" == false ]]; then
+        images+=("$img")
+      fi
+    done < <("$engine" images --format '{{.Repository}}:{{.Tag}}' 2>/dev/null | grep -v '<none>')
+  fi
+
+  echo ""
+  echo "Select container image:"
+  local i
+  for i in "${!images[@]}"; do
+    if [[ "${images[$i]}" == "$default_image" ]]; then
+      printf "  %d) %s  (default)\n" "$((i+1))" "${images[$i]}"
+    else
+      printf "  %d) %s\n" "$((i+1))" "${images[$i]}"
+    fi
+  done
+  printf "  %d) Enter custom image\n" "$(( ${#images[@]} + 1 ))"
+  echo ""
+
+  local choice
+  read -rp "Choice [1]: " choice
+
+  if [[ -z "$choice" ]]; then
+    CONTAINER_IMAGE="$default_image"
+  elif [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#images[@]} )); then
+    CONTAINER_IMAGE="${images[$((choice-1))]}"
+  elif [[ "$choice" =~ ^[0-9]+$ ]] && (( choice == ${#images[@]} + 1 )); then
+    local custom_image
+    read -rp "Enter image (e.g. docker.io/library/debian:latest): " custom_image
+    if [[ -z "$custom_image" ]]; then
+      echo "No image entered, using default."
+      CONTAINER_IMAGE="$default_image"
+    else
+      CONTAINER_IMAGE="$custom_image"
+    fi
+  else
+    echo "Invalid choice, using default."
+    CONTAINER_IMAGE="$default_image"
+  fi
+
+  echo "Using image: $CONTAINER_IMAGE"
+}
+
 # --- Main logic ---
 echo "=== VSCode Installation ==="
 
 case "$OS_TYPE" in
   atomic)
     install_distrobox
+    if [[ "$IMAGE_PRESET" == false ]]; then
+      pick_image
+    fi
     create_container
     install_vscode_in_container
     ;;

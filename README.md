@@ -17,7 +17,7 @@
 
 # JAX DevStation Setup
 
-**Version:** 0.0.5 | [GitHub](https://github.com/JohnAndrewsX/jax-devstation-setup)
+**Version:** 0.0.6 | [GitHub](https://github.com/JohnAndrewsX/jax-devstation-setup)
 
 Reproducible development environment for vibecoding with Claude Code across heterogeneous Linux systems.
 
@@ -30,6 +30,18 @@ bash setup.sh
 ```
 
 The script auto-detects the running OS and selects the correct installation path.
+
+## Options
+
+| Flag | Description |
+| ---- | ----------- |
+| `--dry-run` | OS detection only, no changes |
+| `--skip-vscode` | Skip VSCode installation |
+| `--terminal-extras` | Also install Ghostty + Zellij |
+| `--container-name <name>` | Distrobox container name (default: `dev`) |
+| `--container-image <image>` | Container image for Distrobox (skips interactive selection) |
+
+On Atomic systems (Silverblue, Bazzite), the setup will show an interactive image picker unless `--container-image` is provided.
 
 ## Target Systems
 
