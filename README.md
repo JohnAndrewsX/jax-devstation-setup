@@ -17,7 +17,7 @@
 
 # JAX DevStation Setup
 
-**Version:** 0.0.6 | [GitHub](https://github.com/JohnAndrewsX/jax-devstation-setup)
+[GitHub](https://github.com/JohnAndrewsX/jax-devstation-setup)
 
 Reproducible development environment for vibecoding with Claude Code across heterogeneous Linux systems.
 
