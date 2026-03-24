@@ -1,0 +1,6 @@
+# fnm – Fast Node Manager
+# Automatic Node version switching when entering projects with .node-version
+if [ -d "$HOME/.local/share/fnm" ]; then
+  export PATH="$HOME/.local/share/fnm:$PATH"
+  eval "$(fnm env --use-on-cd)"
+fi

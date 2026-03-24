@@ -1,0 +1,14 @@
+# AI
+anthropic.claude-code
+
+# Astro / Svelte / Tailwind
+astro-build.astro-vscode
+svelte.svelte-vscode
+bradlc.vscode-tailwindcss
+
+# Code Quality
+esbenp.prettier-vscode
+dbaeumer.vscode-eslint
+
+# Markdown / Obsidian
+yzhang.markdown-all-in-one
