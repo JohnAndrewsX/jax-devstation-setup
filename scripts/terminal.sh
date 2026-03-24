@@ -8,6 +8,17 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/detect-os.sh"
 
+CONTAINER_NAME="devstation"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --container-name) CONTAINER_NAME="$2"; shift ;;
+    --zellij|--ghostty|--all) break ;;  # Rest wird unten geparst
+    *) break ;;
+  esac
+  shift
+done
+
 install_tmux() {
   if command -v tmux &>/dev/null; then
     echo "tmux already installed: $(tmux -V)"
@@ -18,12 +29,12 @@ install_tmux() {
   case "$OS_TYPE" in
     atomic)
       # Install in Distrobox container and export to host
-      if distrobox list 2>/dev/null | grep -q "dev"; then
-        distrobox enter dev -- sudo dnf install -y tmux
+      if distrobox list 2>/dev/null | grep -q "$CONTAINER_NAME"; then
+        distrobox enter "$CONTAINER_NAME" -- sudo dnf install -y tmux
         mkdir -p "$HOME/.local/bin"
-        distrobox enter dev -- distrobox-export --bin /usr/bin/tmux --export-path ~/.local/bin
+        distrobox enter "$CONTAINER_NAME" -- distrobox-export --bin /usr/bin/tmux --export-path ~/.local/bin
       else
-        echo "WARNING: Distrobox container 'dev' not found. Run distrobox.sh first." >&2
+        echo "WARNING: Distrobox container '$CONTAINER_NAME' not found. Run distrobox.sh first." >&2
         return 1
       fi
       ;;

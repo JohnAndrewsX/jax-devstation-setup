@@ -8,7 +8,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/detect-os.sh"
 
-CONTAINER_NAME="dev"
+CONTAINER_NAME="devstation"
 CONTAINER_IMAGE="registry.fedoraproject.org/fedora-toolbox:latest"
 IMAGE_PRESET=false
 
@@ -70,7 +70,6 @@ install_vscode_in_container() {
   distrobox enter "$CONTAINER_NAME" -- bash -c '
     # Add Microsoft repo if needed
     if [ ! -f /etc/yum.repos.d/vscode.repo ]; then
-      sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
       echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo > /dev/null
     fi
 
@@ -117,7 +116,6 @@ install_vscode_native_dnf() {
   fi
 
   echo "Installing VSCode via dnf..."
-  sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
   echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo > /dev/null
   sudo dnf install -y code
 }

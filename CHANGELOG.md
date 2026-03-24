@@ -5,6 +5,18 @@ All notable changes to JAX DevStation Setup will be documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.8] - 2026-03-24
+
+### Changed
+
+- Default container name: `dev` → `devstation`
+- Removed hardcoded `sudo rpm --import` for Microsoft GPG key in VSCode installation (distrobox.sh)
+
+### Fixed
+
+- `terminal.sh`: Hardcoded container name `dev` replaced with `--container-name` parameter
+- `setup.sh`: Container name is now passed through to `terminal.sh`
+
 ## [0.0.7] - 2026-03-24
 
 ### Fixed

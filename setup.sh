@@ -33,7 +33,7 @@ while [[ $# -gt 0 ]]; do
       echo "  --dry-run                  OS detection only, no changes"
       echo "  --skip-vscode              Skip VSCode installation"
       echo "  --terminal-extras          Also install Ghostty + Zellij"
-      echo "  --container-name <name>    Distrobox container name (default: dev)"
+      echo "  --container-name <name>    Distrobox container name (default: devstation)"
       echo "  --container-image <image>  Container image (skips interactive selection)"
       echo "  -h, --help                 Show this help"
       exit 0
@@ -46,7 +46,7 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-VERSION="0.0.7"
+VERSION="0.0.8"
 
 cat << EOF
 
@@ -97,10 +97,12 @@ bash "$SCRIPT_DIR/node.sh"
 bash "$SCRIPT_DIR/claude-code.sh"
 
 # Step 5: Terminal tools
+terminal_args=()
+[[ -n "$CONTAINER_NAME" ]] && terminal_args+=(--container-name "$CONTAINER_NAME")
 if [ "$TERMINAL_EXTRAS" = true ]; then
-  bash "$SCRIPT_DIR/terminal.sh" --all
+  bash "$SCRIPT_DIR/terminal.sh" "${terminal_args[@]}" --all
 else
-  bash "$SCRIPT_DIR/terminal.sh"
+  bash "$SCRIPT_DIR/terminal.sh" "${terminal_args[@]}"
 fi
 
 # Step 6: Shell configuration
